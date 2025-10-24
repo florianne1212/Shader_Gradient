@@ -98,7 +98,7 @@ void main() {
   vColor = uColor[4];
   for(int i = 1; i < 4; i++){
     float noiseFLow = 5.0 + float(i) * 0.3; 
-      float noiseSpeed = 10.0 + float(i) * 0.3; 
+      float noiseSpeed = 10.0 + float(i) * 0.3 ; 
       float noiseSeed = 1.0 + float(i) * 10.; 
       vec2 noiseFreq = vec2(1.0, 1.4)*0.4;
 

@@ -28,15 +28,44 @@ const canvas = document.querySelector('canvas.webgl')
 const scene = new THREE.Scene()
 
 /**
- * Textures
+ * Sizes
  */
-const textureLoader = new THREE.TextureLoader()
+const sizes = {
+    width: window.innerWidth,
+    height: window.innerHeight
+}
+
+/**
+ * Camera
+ */
+// Use OrthographicCamera to fill the screen
+const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 10)
+camera.position.z = 1
+scene.add(camera)
+
+/**
+ * Renderer
+ */
+const renderer = new THREE.WebGLRenderer({
+    canvas: canvas,
+    antialias: true
+})
+
+const updateSize = () => {
+    sizes.width = window.innerWidth
+    sizes.height = window.innerHeight
+
+    renderer.setSize(sizes.width, sizes.height)
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+
+    material.uniforms.pixels.value.set(sizes.width, sizes.height)
+}
 
 /**
  * Test mesh
  */
-// Geometry
-const geometry = new THREE.PlaneGeometry(1.5, 1.5, 300, 300)
+// Geometry - Create fullscreen plane geometry
+const geometry = new THREE.PlaneGeometry(2, 2, 300, 300) 
 
 // Material
 const material = new THREE.ShaderMaterial({
@@ -45,7 +74,7 @@ const material = new THREE.ShaderMaterial({
     uniforms: {
         time: { value: 0 },
         uColor: {value: palette},
-        uSpeed: { value: 1.0 },
+        uSpeed: { value: 3.0 },
         uNoiseHeight: { value: 0.2 },
         pixels: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
         progress: { value: 0 },
@@ -58,11 +87,17 @@ const material = new THREE.ShaderMaterial({
 const mesh = new THREE.Mesh(geometry, material)
 scene.add(mesh)
 
+// Controls
+const controls = new OrbitControls(camera, canvas)
+controls.enableDamping = true
+
+updateSize()
+
 /**
  * GUI Controls
  */
 const params = {
-    speed: 1.0,
+    speed: 3.0,
     noiseHeight: 0.2,
     color0: palette[0].getHex(),
     color1: palette[1].getHex(),
@@ -73,7 +108,7 @@ const params = {
 
 // Animation controls
 const animationFolder = gui.addFolder('Animation')
-animationFolder.add(params, 'speed', 0, 5, 0.1).onChange((value) => {
+animationFolder.add(params, 'speed', 0, 25, 0.1).onChange((value) => {
     material.uniforms.uSpeed.value = value
 }).name('Speed')
 
@@ -108,48 +143,11 @@ colorFolder.addColor(params, 'color4').onChange((value) => {
 colorFolder.open()
 
 /**
- * Sizes
+ * Window Resize
  */
-const sizes = {
-    width: window.innerWidth,
-    height: window.innerHeight
-}
-
-window.addEventListener('resize', () =>
-{
-    // Update sizes
-    sizes.width = window.innerWidth
-    sizes.height = window.innerHeight
-
-    // Update camera
-    camera.aspect = sizes.width / sizes.height
-    camera.updateProjectionMatrix()
-
-    // Update renderer
-    renderer.setSize(sizes.width, sizes.height)
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+window.addEventListener('resize', () => {
+    updateSize()
 })
-
-/**
- * Camera
- */
-// Base camera
-const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
-camera.position.set(-0.13, 0.17, 0.55)
-scene.add(camera)
-
-// Controls
-const controls = new OrbitControls(camera, canvas)
-controls.enableDamping = true
-
-/**
- * Renderer
- */
-const renderer = new THREE.WebGLRenderer({
-    canvas: canvas
-})
-renderer.setSize(sizes.width, sizes.height)
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 /**
  * Animate
