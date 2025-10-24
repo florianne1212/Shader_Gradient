@@ -1,5 +1,7 @@
 uniform float time;
 uniform vec2 pixels;
+uniform float uSpeed;
+uniform float uNoiseHeight;
 
 varying vec2 vUv;
 varying vec3 vPosition;
@@ -89,9 +91,9 @@ void main() {
   float incline = uv.x *0.5;
   float offset =0.5*incline*mix(-0.25,0.25,uv.y);
 
-  float noise = snoise(vec3(noiseCoord.x + time*3.0, noiseCoord.y, time * 10.0));
+  float noise = snoise(vec3(noiseCoord.x + time*3.0*uSpeed, noiseCoord.y, time * 10.0*uSpeed));
   noise = max(0.0, noise);
-  vec3 pos = vec3(position.x, position.y, position.z + noise *0.2 + tilt +incline+ offset);
+  vec3 pos = vec3(position.x, position.y, position.z + noise * uNoiseHeight + tilt +incline+ offset);
 
   vColor = uColor[4];
   for(int i = 1; i < 4; i++){
